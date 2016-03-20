@@ -1,0 +1,154 @@
+{
+  "clean": [
+    "dist/**/.DS_Store"
+  ],
+  "styles": {
+    "root": ["src/*.scss"],
+    "dest": "dist",
+    "browsers" : [
+      "ie >= 9",
+      "ie_mob >= 10",
+      "ff >= 30",
+      "chrome >= 34",
+      "safari >= 7",
+      "opera >= 23",
+      "ios >= 7",
+      "android >= 4.4",
+      "bb >= 10"
+    ],
+    "banner": ["/**",
+      " * <%= pkg.name %> - <%= pkg.description %>",
+      " * @version v<%= pkg.version %>",
+      " * @link <%= pkg.homepage %>",
+      " * @license <%= pkg.license %>",
+      " */",
+      ""]
+  },
+  "scripts": {
+    "src": [
+      "src/*.js"
+    ],
+    "require": [
+      {
+        "name": "bundle",
+        "suffix": ".bundle",
+        "options": {
+          "baseUrl": "src/",
+          "name": "almond",
+          "include": [
+            "meDialog",
+            "matchesPolyfill"
+          ],
+          "out": "dist/me-dialog",
+          "wrap": {
+            "startFile": "src/wrap/start.frag",
+            "endFile": "src/wrap/end.frag"
+          },
+          "paths": {
+            "almond": "../node_modules/almond/almond",
+            "meDialog": "index",
+            "meTools": "me-tools.custom",
+            "variable": "../node_modules/me-tools/src/fn/variable",
+            "element": "../node_modules/me-tools/src/fn/element",
+            "event": "../node_modules/me-tools/src/fn/event",
+            "meLockView": "../node_modules/me-lock-view/src/index",
+            "meShowTransition": "../node_modules/me-show-transition/src/index",
+            "meTrapFocus": "../node_modules/me-trap-focus/src/index",
+            "matchesPolyfill": "../node_modules/me-polyfills/src/matches"
+          },
+          "shim": {
+            "matchesPolyfill": {
+              "exports": "matchesPolyfill"
+            }
+          }
+        }
+      },
+      {
+        "name": "bundle-ie9",
+        "suffix": ".bundle.ie9",
+        "options": {
+          "baseUrl": "src/",
+          "name": "almond",
+          "include": [
+            "meDialog",
+            "matchesPolyfill",
+            "classListPolyfill",
+            "animationFramePolyfill"
+          ],
+          "out": "dist/me-dialog",
+          "wrap": {
+            "startFile": "src/wrap/start.frag",
+            "endFile": "src/wrap/end.frag"
+          },
+          "paths": {
+            "almond": "../node_modules/almond/almond",
+            "meDialog": "index",
+            "meTools": "me-tools.custom",
+            "variable": "../node_modules/me-tools/src/fn/variable",
+            "element": "../node_modules/me-tools/src/fn/element",
+            "event": "../node_modules/me-tools/src/fn/event",
+            "meLockView": "../node_modules/me-lock-view/src/index",
+            "meShowTransition": "../node_modules/me-show-transition/src/index",
+            "meTrapFocus": "../node_modules/me-trap-focus/src/index",
+            "matchesPolyfill": "../node_modules/me-polyfills/src/matches",
+            "classListPolyfill": "../node_modules/me-polyfills/src/classList",
+            "animationFramePolyfill": "../node_modules/me-polyfills/src/animationFrame"
+          },
+          "shim": {
+            "matchesPolyfill": {
+              "exports": "matchesPolyfill"
+            },
+            "classListPolyfill": {
+              "exports": "classListPolyfill"
+            },
+            "animationFramePolyfill": {
+              "exports": "animationFramePolyfill"
+            }
+          }
+        }
+      }
+    ],
+    "uglify": {
+      "src": ["src/index.js"],
+      "sourcemap": {
+        "includeContent": false,
+        "sourceRoot" : "../src/"
+      },
+      "rename": "me-dialog.min.js"
+    },
+    "dest": "dist",
+    "banner": ["/**",
+      " * @license <%= pkg.name %> <%= pkg.version %> Copyright (c) <%= pkg.author %>",
+      " * Available via the <%= pkg.license %> license.",
+      " * see: <%= pkg.homepage %> for details",
+      " */",
+      ""]
+  },
+  "build": [
+    "clean",
+    "styles",
+    "scripts-uglify",
+    "scripts-require-bundle",
+    "scripts-require-bundle-min",
+    "scripts-require-bundle-ie9",
+    "scripts-require-bundle-ie9-min"
+  ],
+  "watch": [
+    {
+      "files": [
+        "src/*.scss"
+      ],
+      "tasks": [
+        "styles"
+      ]
+    },
+    {
+      "files": [
+        "src/*.js"
+      ],
+      "tasks": [
+        "scripts-require-bundle-min"
+      ]
+    }
+  ]
+}

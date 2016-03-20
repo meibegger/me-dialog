@@ -1,0 +1,55 @@
+{
+  "name": "me-dialog",
+  "version": "1.0.0",
+  "description": "An accessible dialog widget.",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meibegger/me-dialog.git"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "modal",
+    "dialog",
+    "javascript"
+  ],
+  "license": "MIT",
+  "author": "Mandana Eibegger <scripts@schoener.at>",
+  "bugs": {
+    "url": "https://github.com/meibegger/me-dialog/issues"
+  },
+  "homepage": "https://github.com/meibegger/me-dialog",
+  "scripts": {
+    "gulp": "gulp"
+  },
+  "devDependencies": {
+    "almond": "^0.3.1",
+    "del": "^2.2.0",
+    "extend": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-csso": "^1.1.0",
+    "gulp-footer": "^1.0.5",
+    "gulp-header": "^1.7.1",
+    "gulp-if": "^2.0.0",
+    "gulp-jshint": "^2.0.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.2.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-watch": "^4.3.5",
+    "jshint": "^2.9.1",
+    "jshint-stylish": "^2.1.0",
+    "require-dir": "^0.3.0",
+    "requirejs": "^2.1.22"
+  },
+  "dependencies": {
+    "me-polyfills": "^1.0.0",
+    "me-lock-view": "^1.0.1",
+    "me-show-transition": "^1.0.0",
+    "me-tools": "^1.0.0",
+    "me-trap-focus": "^1.0.0"
+  }
+}

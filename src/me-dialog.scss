@@ -1,0 +1,125 @@
+$dialog-transition-time: .5s;
+$dialog-zindex: 10000 !default;
+
+$backdrop-background: rgba(0,0,0,.85) !default;
+$backdrop-transition: all $dialog-transition-time ease 0s;
+
+$dialog-background: #FFF !default;
+$dialog-border-radius: .5rem;
+$dialog-max-width: 70rem !default;
+$dialog-min-width: 10rem !default;
+$dialog-width: 100% !default;
+$dialog-left: auto !default;
+$dialog-top: 0 !default;
+$dialog-right: 50% !default;
+$dialog-bottom: auto !default;
+$dialog-transform-in: translate(50%,0);
+$dialog-transform-out: translate(50%,-100%);
+$dialog-transition: all $dialog-transition-time ease 0s;
+$dialog-margin: 2rem !default;
+$dialog-padding: 2rem !default;
+
+$close-left: auto !default;
+$close-top: 1rem !default;
+$close-right: 1rem !default;
+$close-bottom: auto !default;
+$close-width: 2rem;
+$close-height: 2rem;
+$close-padding: .3rem;
+$close-border-radius: 50%;
+$close-background: #FFF !default;
+$close-background-hover: #000 !default;
+$close-color: #555 !default;
+$close-color-hover: #FFF !default;
+$close-border: 0 !default;
+$close-border-hover: 0 !default;
+
+@import "../node_modules/me-lock-view/src/me-lock-view";
+
+.me-dialog-container {
+  display: none;
+}
+
+.me-backdrop {
+  background: $backdrop-background;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: ($dialog-zindex - 1);
+
+  width: 100%;
+  height: 100%;
+
+  display: none;
+  .me-dialog-container & {
+    display: block;
+  }
+
+  transition: $backdrop-transition;
+  .me-shown &,
+  &.me-shown {
+    opacity: 1;
+  }
+  &,
+  .me-hide &,
+  &.me-hide {
+    opacity: 0;
+  }
+}
+.me-dialog-window {
+  position: absolute;
+
+  left: $dialog-left;
+  top: $dialog-top;
+  right: $dialog-right;
+  bottom: $dialog-bottom;
+  z-index: $dialog-zindex;
+
+  box-sizing: border-box;
+  max-width: $dialog-max-width;
+  min-width: $dialog-min-width;
+  width: $dialog-width;
+  padding: $dialog-margin;
+
+  transition: $dialog-transition;
+  .me-shown &,
+  &.me-shown {
+    transform: $dialog-transform-in;
+  }
+  &,
+  .me-hide &,
+  &.me-hide {
+    transform: $dialog-transform-out;
+  }
+}
+.me-dialog {
+  background: $dialog-background;
+  padding: $dialog-padding;
+  border-radius: $dialog-border-radius;
+}
+
+.me-main-close {
+  position: absolute;
+  overflow: hidden;
+  box-sizing: border-box;
+  left: $close-left;
+  top: $close-top;
+  right: $close-right;
+  bottom: $close-bottom;
+  width: $close-width;
+  height: $close-height;
+  padding: $close-padding;
+  border-radius: $close-border-radius;
+  border: $close-border;
+  color: $close-color;
+  background: $close-background;
+
+  &:hover,
+  &:focus {
+    border: $close-border-hover;
+    color: $close-color-hover;
+    background: $close-background-hover;
+    cursor: pointer;
+  }
+}

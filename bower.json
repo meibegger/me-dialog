@@ -1,0 +1,25 @@
+{
+  "name": "me-dialog",
+  "version": "1.0.0",
+  "homepage": "https://github.com/meibegger/me-dialog",
+  "authors": [
+    "Mandana Eibegger <scripts@schoener.at>"
+  ],
+  "description": "An accessible dialog widget.",
+  "main": "src/me-dialog.js",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "modal",
+    "dialog",
+    "javascript"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meibegger/me-dialog.git"
+  }
+}
