@@ -1,0 +1,8 @@
+/**
+ * me-lock-view - A utility script to "lock" the main content of the page to prevent scrolling of the content in the background if you, for instance, open a modal dialog on top of the page
+ * @version v1.0.1
+ * @link https://github.com/meibegger/me-lock-view
+ * @license MIT
+ */
+[data-me-view=locked]{height:100%;width:100%;overflow:hidden;position:fixed;z-index:0}
+/*# sourceMappingURL=me-lock-view.css.map */

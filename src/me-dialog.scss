@@ -1,8 +1,8 @@
 $dialog-transition-time: .5s;
 $dialog-zindex: 10000 !default;
 
-$backdrop-background: rgba(0,0,0,.85) !default;
-$backdrop-transition: all $dialog-transition-time ease 0s;
+$dialog-backdrop-background: rgba(0,0,0,.85) !default;
+$dialog-backdrop-transition: all $dialog-transition-time ease 0s;
 
 $dialog-background: #FFF !default;
 $dialog-border-radius: .5rem;
@@ -19,29 +19,28 @@ $dialog-transition: all $dialog-transition-time ease 0s;
 $dialog-margin: 2rem !default;
 $dialog-padding: 2rem !default;
 
-$close-left: auto !default;
-$close-top: 1rem !default;
-$close-right: 1rem !default;
-$close-bottom: auto !default;
-$close-width: 2rem;
-$close-height: 2rem;
-$close-padding: .3rem;
-$close-border-radius: 50%;
-$close-background: #FFF !default;
-$close-background-hover: #000 !default;
-$close-color: #555 !default;
-$close-color-hover: #FFF !default;
-$close-border: 0 !default;
-$close-border-hover: 0 !default;
+$dialog-close-left: auto !default;
+$dialog-close-top: 1rem !default;
+$dialog-close-right: 1rem !default;
+$dialog-close-bottom: auto !default;
+$dialog-close-width: 2rem;
+$dialog-close-height: 2rem;
+$dialog-close-padding: .3rem;
+$dialog-close-border-radius: 50%;
+$dialog-close-background: #FFF !default;
+$dialog-close-background-hover: #000 !default;
+$dialog-close-color: #555 !default;
+$dialog-close-color-hover: #FFF !default;
+$dialog-close-border: 0 !default;
+$dialog-close-border-hover: 0 !default;
 
-@import "../node_modules/me-lock-view/src/me-lock-view";
 
 .me-dialog-container {
   display: none;
 }
 
 .me-backdrop {
-  background: $backdrop-background;
+  background: $dialog-backdrop-background;
 
   position: fixed;
   left: 0;
@@ -56,7 +55,7 @@ $close-border-hover: 0 !default;
     display: block;
   }
 
-  transition: $backdrop-transition;
+  transition: $dialog-backdrop-transition;
   .me-shown &,
   &.me-shown {
     opacity: 1;
@@ -103,23 +102,23 @@ $close-border-hover: 0 !default;
   position: absolute;
   overflow: hidden;
   box-sizing: border-box;
-  left: $close-left;
-  top: $close-top;
-  right: $close-right;
-  bottom: $close-bottom;
-  width: $close-width;
-  height: $close-height;
-  padding: $close-padding;
-  border-radius: $close-border-radius;
-  border: $close-border;
-  color: $close-color;
-  background: $close-background;
+  left: $dialog-close-left;
+  top: $dialog-close-top;
+  right: $dialog-close-right;
+  bottom: $dialog-close-bottom;
+  width: $dialog-close-width;
+  height: $dialog-close-height;
+  padding: $dialog-close-padding;
+  border-radius: $dialog-close-border-radius;
+  border: $dialog-close-border;
+  color: $dialog-close-color;
+  background: $dialog-close-background;
 
   &:hover,
   &:focus {
-    border: $close-border-hover;
-    color: $close-color-hover;
-    background: $close-background-hover;
+    border: $dialog-close-border-hover;
+    color: $dialog-close-color-hover;
+    background: $dialog-close-background-hover;
     cursor: pointer;
   }
 }
