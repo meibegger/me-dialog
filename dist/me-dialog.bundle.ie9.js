@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.0 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.1 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2825,3 +2825,4 @@ define("animationFramePolyfill", (function (global) {
 
   return require('meDialog');
 }));
+
