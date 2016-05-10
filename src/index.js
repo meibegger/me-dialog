@@ -55,10 +55,17 @@
       // selector identifying the close button within the dialog
       closeSelector: '.me-close',
 
-      customHandler: { // custom action handlers; false for automatic handling or fn()
-        focus: false   // fn(container) returning an element within the dialog to focus; or false to use the default
+      // the dialog requires confirmation (like a js confirm box), so ESC will not close the dialog
+      requireConfirm: false,
+
+      // custom action handlers; false for automatic handling or fn
+      customHandler: {
+        // fn(container) returning an element within the dialog to focus; or false to use the default
+        focus: false
       },
-      callbacks: { // false or fn(params); params = {container: CONTAINER,backdrop:BACKDROP,trigger:TRIGGER,immediate:BOOL (immediate show/hide call - no transition)}
+
+      // false or fn(params); params = {container: CONTAINER,backdrop:BACKDROP,trigger:TRIGGER,immediate:BOOL (immediate show/hide call - no transition)}
+      callbacks: {
         beforeShow: false,
         beforeShowTransition: false,
         afterShowTransition: false,
@@ -68,8 +75,12 @@
         afterHideTransition: false,
         afterHide: false
       },
-      lockView: true, // see meLockView
-      idPrefix: 'id-'              // prefix for generated IDs
+
+      // see meLockView
+      lockView: true,
+
+      // prefix for generated IDs
+      idPrefix: 'id-'
     }
     ;
 
@@ -313,7 +324,9 @@
       }
 
       // set wai-aria attributes
-      that.trigger.setAttribute('aria-expanded','true');
+      if (that.trigger) {
+        that.trigger.setAttribute('aria-expanded','true');
+      }
       that.container.setAttribute('aria-hidden','false');
 
     }
@@ -431,7 +444,7 @@
     if (!event.ctrlKey && !event.altKey) {
       var code = (event.keyCode ? event.keyCode : event.which);
 
-      if (code == KEY_ESCAPE) {
+      if (!this.options.requireConfirm && code == KEY_ESCAPE) {
         hide.call(this);
         event.stopPropagation();
       }
