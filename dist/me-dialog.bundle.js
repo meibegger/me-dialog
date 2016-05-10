@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.1 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.2 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -1963,10 +1963,17 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       // selector identifying the close button within the dialog
       closeSelector: '.me-close',
 
-      customHandler: { // custom action handlers; false for automatic handling or fn()
-        focus: false   // fn(container) returning an element within the dialog to focus; or false to use the default
+      // the dialog requires confirmation (like a js confirm box), so ESC will not close the dialog
+      requireConfirm: false,
+
+      // custom action handlers; false for automatic handling or fn
+      customHandler: {
+        // fn(container) returning an element within the dialog to focus; or false to use the default
+        focus: false
       },
-      callbacks: { // false or fn(params); params = {container: CONTAINER,backdrop:BACKDROP,trigger:TRIGGER,immediate:BOOL (immediate show/hide call - no transition)}
+
+      // false or fn(params); params = {container: CONTAINER,backdrop:BACKDROP,trigger:TRIGGER,immediate:BOOL (immediate show/hide call - no transition)}
+      callbacks: {
         beforeShow: false,
         beforeShowTransition: false,
         afterShowTransition: false,
@@ -1976,8 +1983,12 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
         afterHideTransition: false,
         afterHide: false
       },
-      lockView: true, // see meLockView
-      idPrefix: 'id-'              // prefix for generated IDs
+
+      // see meLockView
+      lockView: true,
+
+      // prefix for generated IDs
+      idPrefix: 'id-'
     }
     ;
 
@@ -2221,7 +2232,9 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       }
 
       // set wai-aria attributes
-      that.trigger.setAttribute('aria-expanded','true');
+      if (that.trigger) {
+        that.trigger.setAttribute('aria-expanded','true');
+      }
       that.container.setAttribute('aria-hidden','false');
 
     }
@@ -2339,7 +2352,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     if (!event.ctrlKey && !event.altKey) {
       var code = (event.keyCode ? event.keyCode : event.which);
 
-      if (code == KEY_ESCAPE) {
+      if (!this.options.requireConfirm && code == KEY_ESCAPE) {
         hide.call(this);
         event.stopPropagation();
       }
@@ -2545,7 +2558,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 1.0.1 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.2 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
