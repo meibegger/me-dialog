@@ -1924,7 +1924,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
    ---------------
    */
 
-    // code of the escape key
+  // code of the escape key
     KEY_ESCAPE = 27,
 
   // if this attribute is set on a dialog container, the dialog will be initialized automatically
@@ -1960,8 +1960,11 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       // - labelling element
       label: '.me-label',
 
-      // selector identifying the close button within the dialog
+      // selector identifying the close button(s) within the dialog
       closeSelector: '.me-close',
+
+      // class added to the close button, if the (external) backdrop should not be hidden on close/click
+      keepBackdropIndicator: 'me-keep-backdrop',
 
       // the dialog requires confirmation (like a js confirm box), so ESC will not close the dialog
       requireConfirm: false,
@@ -2035,6 +2038,8 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     that.meTrapFocus = null;
     that.mainShowTransition = null;
     that.backdropShowTransition = null;
+
+    that.keepBackdrop = false;
 
     return that;
   }
@@ -2159,6 +2164,9 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       that = this,
       closeButtons = that.container.querySelectorAll(that.options.closeSelector),
       _hide = function () {
+        if (this.className.indexOf(that.options.keepBackdropIndicator) !== -1) {
+          that.keepBackdrop = true;
+        }
         hide.call(that);
       };
 
@@ -2257,9 +2265,10 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       customCallback(data,'beforeHide');
 
       // hide the backdrop
-      if (that.backdropShowTransition) {
+      if (that.backdropShowTransition && !that.keepBackdrop) {
         that.backdropShowTransition.hide(data.immediate);
       }
+      that.keepBackdrop = false;
 
       // focus the trigger
       if (that.trigger) {
@@ -2524,6 +2533,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   return meDialog;
 
 }));
+
 /***********************************************************************************************************************
  * MATCHES
  * Add matches support for all IEs and others (http://caniuse.com/#feat=matchesselector)
