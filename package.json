@@ -1,6 +1,6 @@
 {
   "name": "me-dialog",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An accessible dialog widget.",
   "main": "src/index.js",
   "repository": {
