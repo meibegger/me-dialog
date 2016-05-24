@@ -49,7 +49,7 @@
     "me-polyfills": "^1.0.0",
     "me-lock-view": "^1.0.1",
     "me-show-transition": "^1.0.2",
-    "me-tools": "^1.0.0",
+    "me-tools": "^1.0.1",
     "me-trap-focus": "^1.0.0"
   }
 }
