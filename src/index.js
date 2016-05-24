@@ -360,7 +360,6 @@
       if (that.backdropShowTransition && !that.keepBackdrop) {
         that.backdropShowTransition.hide(data.immediate);
       }
-      that.keepBackdrop = false;
 
       // focus the trigger
       if (that.trigger) {
@@ -374,9 +373,10 @@
     function afterHide (data) {
 
       // unlock the view
-      if (options.lockView) {
+      if (options.lockView && !that.keepBackdrop) {
         meLockView.unlock();
       }
+      that.keepBackdrop = false;
 
       // set wai-aria attributes
       that.container.setAttribute('aria-hidden','true');

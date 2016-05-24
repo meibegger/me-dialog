@@ -2268,7 +2268,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       if (that.backdropShowTransition && !that.keepBackdrop) {
         that.backdropShowTransition.hide(data.immediate);
       }
-      that.keepBackdrop = false;
 
       // focus the trigger
       if (that.trigger) {
@@ -2282,9 +2281,10 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     function afterHide (data) {
 
       // unlock the view
-      if (options.lockView) {
+      if (options.lockView && !that.keepBackdrop) {
         meLockView.unlock();
       }
+      that.keepBackdrop = false;
 
       // set wai-aria attributes
       that.container.setAttribute('aria-hidden','true');
@@ -2533,7 +2533,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   return meDialog;
 
 }));
-
 /***********************************************************************************************************************
  * MATCHES
  * Add matches support for all IEs and others (http://caniuse.com/#feat=matchesselector)
