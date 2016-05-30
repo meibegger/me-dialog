@@ -1,12 +1,12 @@
-;(function(root, factory) {
+(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['meTools','meLockView','meShowTransition','meTrapFocus'], factory);
+    define(['meTools', 'meLockView', 'meShowTransition', 'meTrapFocus'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(meTools,meLockView,meShowTransition,meTrapFocus);
+    module.exports = factory(meTools, meLockView, meShowTransition, meTrapFocus);
   } else {
-    root.meShowTransition = factory(meTools,meLockView,meShowTransition,meTrapFocus);
+    root.meShowTransition = factory(meTools, meLockView, meShowTransition, meTrapFocus);
   }
-} (this, function(meTools,meLockView,meShowTransition,meTrapFocus) {
+}(this, function (meTools, meLockView, meShowTransition, meTrapFocus) {
 
   var
 
@@ -34,7 +34,7 @@
 
     defaultOptions = {
       // set if the dialog is modal; default is true
-      modal : true,
+      modal: true,
 
       // only relevant if modal=true
       // - selector identifying the backdrop element within the dialog, OR
@@ -44,7 +44,7 @@
       // only relevant if modal=true
       // close the dialog on click on the backdrop; o
       // Note: if true, the behaviour is not according to the WAI ARIA best practices!
-      closeOnBackdrop : false,
+      closeOnBackdrop: false,
 
       // "the label should briefly and adequately describe the dialogs use"
       // - selector identifying the labeling element within the dialog, OR
@@ -60,6 +60,9 @@
 
       // the dialog requires confirmation (like a js confirm box), so ESC will not close the dialog
       requireConfirm: false,
+
+      // attribute set on the container with the view properties passed onShow as value; use this to set states for a specific view of the dialog (e.g. show/hide elements etc.)
+      viewPropsAttribute: 'data-view-props',
 
       // custom action handlers; false for automatic handling or fn
       customHandler: {
@@ -104,7 +107,7 @@
     // merge options
     initProperties.call(that).options = meTools.mergeObjects(defaultOptions, options);
 
-    initDialog.call(that,container);
+    initDialog.call(that, container);
 
   }
 
@@ -136,13 +139,13 @@
     return that;
   }
 
-  function initDialog (container) {
+  function initDialog(container) {
     var
       that = this,
       options = that.options;
 
     // check arguments
-    that.container = initContainer.call(that,container);
+    that.container = initContainer.call(that, container);
 
     if (options.modal) {
       that.backdrop = initBackdrop.call(that);
@@ -154,12 +157,12 @@
     initShow.call(that);
     initTriggers.call(that);
 
-    hide.call(that,true);
+    hide.call(that, true);
 
     return that;
   }
 
-  function initContainer (container) {
+  function initContainer(container) {
     // get element
     var
       that = this,
@@ -170,17 +173,17 @@
     }
 
     // set role
-    containerElement.setAttribute('role','dialog');
+    containerElement.setAttribute('role', 'dialog');
 
     // register events
     meTools.registerEvent(that, containerElement, 'click', function (event) {
-      handleClick.call(that,event);
+      handleClick.call(that, event);
     });
     meTools.registerEvent(that, containerElement, 'keydown', function (event) {
-      handleKeyboard.call(that,event);
+      handleKeyboard.call(that, event);
     });
     meTools.registerEvent(that, containerElement, 'showdialog', function (event) {
-      triggeredShow.call(that,event.detail);
+      triggeredShow.call(that, event.detail);
     });
     meTools.registerEvent(that, containerElement, 'hidedialog', function (event) {
       triggeredHide.call(that);
@@ -189,7 +192,7 @@
     return containerElement;
   }
 
-  function initBackdrop () {
+  function initBackdrop() {
     var
       that = this,
       options = that.options,
@@ -197,9 +200,9 @@
       backdropDef = options.backdrop,
       backdropElement = false;
 
-    if (typeof(backdropDef)==='string') {
+    if (typeof(backdropDef) === 'string') {
       backdropElement = container.querySelector(backdropDef);
-    } else if (backdropDef && typeof(backdropDef)==='object' && typeof(backdropDef.tagName)!=='undefined') {
+    } else if (backdropDef && typeof(backdropDef) === 'object' && typeof(backdropDef.tagName) !== 'undefined') {
       backdropElement = backdropDef;
     }
 
@@ -207,24 +210,24 @@
       throw 'meDialog: Backdrop element not found';
     }
 
-    backdropElement.setAttribute('tabindex','-1'); // "Set the tabindex of the backdrop element to tabindex="-1" to prevent it from receiving focus via a keyboard event or mouse click."
+    backdropElement.setAttribute('tabindex', '-1'); // "Set the tabindex of the backdrop element to tabindex="-1" to prevent it from receiving focus via a keyboard event or mouse click."
 
     meTools.registerEvent(that, backdropElement, 'click', function (event) {
-      handleBackdropClick.call(that,event.target);
+      handleBackdropClick.call(that, event.target);
     });
 
     // set meShowTransition on the backdrop if it is not contained in the main dialog container
-    if (!meTools.isParent(that.container,backdropElement)) {
+    if (!meTools.isParent(that.container, backdropElement)) {
       // build meShowTransition options
       var _options = meTools.copyValues(that.options);
       _options.callbacks = {}; // remove all callbacks
-      that.backdropShowTransition = new meShowTransition(backdropElement,_options);
+      that.backdropShowTransition = new meShowTransition(backdropElement, _options);
     }
 
     return backdropElement;
   }
 
-  function setLabel () {
+  function setLabel() {
     var
       that = this,
       options = that.options,
@@ -232,16 +235,16 @@
       labelDef = options.label,
       labelElement = false;
 
-    if (typeof(labelDef)==='string') {
+    if (typeof(labelDef) === 'string') {
       labelElement = container.querySelector(labelDef);
-    } else if (typeof(labelDef)==='object' && typeof(labelDef.tagName)!=='undefined') {
+    } else if (typeof(labelDef) === 'object' && typeof(labelDef.tagName) !== 'undefined') {
       labelElement = labelDef;
     }
 
     if (labelElement) {
-      container.setAttribute('aria-labelledby',meTools.getId(labelElement,options.idPrefix));
+      container.setAttribute('aria-labelledby', meTools.getId(labelElement, options.idPrefix));
 
-    } else if (typeof(labelDef)==='string') {
+    } else if (typeof(labelDef) === 'string') {
       container.setAttribute('aria-label', labelDef);
 
     } else {
@@ -251,7 +254,7 @@
     return that;
   }
 
-  function initCloseBtn () {
+  function initCloseBtn() {
     var
       that = this,
       closeButtons = that.container.querySelectorAll(that.options.closeSelector),
@@ -262,31 +265,31 @@
         hide.call(that);
       };
 
-    for (var i=0; i<closeButtons.length; i++) {
+    for (var i = 0; i < closeButtons.length; i++) {
       meTools.registerEvent(that, closeButtons[i], 'click', _hide);
     }
 
     return that;
   }
 
-  function initFocus () {
+  function initFocus() {
     var
       that = this,
       container = that.container;
 
-    that.meTrapFocus = new meTrapFocus(container,that.options);
+    that.meTrapFocus = new meTrapFocus(container, that.options);
 
     // add tabindex to the dialog to be able to focus it if there is no focusable element inside
     var currentTabindex = container.getAttribute('tabindex');
-    if (!currentTabindex && currentTabindex!==0) {
-      container.setAttribute('data-tabindexed','true');
-      container.setAttribute('tabindex','-1');
+    if (!currentTabindex && currentTabindex !== 0) {
+      container.setAttribute('data-tabindexed', 'true');
+      container.setAttribute('tabindex', '-1');
     }
 
     return that;
   }
 
-  function initShow () {
+  function initShow() {
     var
       that = this,
       options = that.options,
@@ -299,7 +302,7 @@
     /* adjust callbacks */
 
     // call user-defined callback
-    function customCallback (data,name) {
+    function customCallback(data, name) {
       if (callbacks[name]) {
 
         // add custom properties
@@ -310,16 +313,16 @@
       }
     }
 
-    function passCustomCallback (name) {
+    function passCustomCallback(name) {
       return function (data) {
-        customCallback(data,name);
+        customCallback(data, name);
       };
     }
 
-    function beforeShow (data) {
+    function beforeShow(data) {
 
       // call user-defined beforeShow
-      customCallback(data,'beforeShow');
+      customCallback(data, 'beforeShow');
 
       // show the backdrop
       if (that.backdropShowTransition) {
@@ -333,13 +336,13 @@
 
       // set wai-aria attributes
       if (that.trigger) {
-        that.trigger.setAttribute('aria-expanded','true');
+        that.trigger.setAttribute('aria-expanded', 'true');
       }
-      that.container.setAttribute('aria-hidden','false');
+      that.container.setAttribute('aria-hidden', 'false');
 
     }
 
-    function afterShow (data) {
+    function afterShow(data) {
 
       // fetch the focusable elements
       that.meTrapFocus.update();
@@ -348,13 +351,13 @@
       setFocus.call(that);
 
       // call user-defined beforeShowTransition
-      customCallback(data,'afterShow');
+      customCallback(data, 'afterShow');
     }
 
-    function beforeHide (data) {
+    function beforeHide(data) {
 
       // call user-defined beforeHide
-      customCallback(data,'beforeHide');
+      customCallback(data, 'beforeHide');
 
       // hide the backdrop
       if (that.backdropShowTransition && !that.keepBackdrop) {
@@ -364,13 +367,13 @@
       // focus the trigger
       if (that.trigger) {
         // set wai-aria attributes
-        that.trigger.setAttribute('aria-expanded','false');
+        that.trigger.setAttribute('aria-expanded', 'false');
         unsetTrigger.call(focusTrigger.call(that));
       }
 
     }
 
-    function afterHide (data) {
+    function afterHide(data) {
 
       // unlock the view
       if (options.lockView && !that.keepBackdrop) {
@@ -379,10 +382,10 @@
       that.keepBackdrop = false;
 
       // set wai-aria attributes
-      that.container.setAttribute('aria-hidden','true');
+      that.container.setAttribute('aria-hidden', 'true');
 
       // call user-defined afterHide
-      customCallback(data,'afterHide');
+      customCallback(data, 'afterHide');
 
     }
 
@@ -399,24 +402,24 @@
 
 
     // init meShowTransition
-    that.mainShowTransition = new meShowTransition(that.container,_options);
+    that.mainShowTransition = new meShowTransition(that.container, _options);
 
     return that;
   }
 
-  function initTriggers () {
+  function initTriggers() {
     var
       that = this,
-      dialogId = meTools.getId(that.container,that.options.idPrefix),
-      triggers = document.querySelectorAll('['+TRIGGER_SHOW+'="'+dialogId+'"]'),
-      _show = function() {
+      dialogId = meTools.getId(that.container, that.options.idPrefix),
+      triggers = document.querySelectorAll('[' + TRIGGER_SHOW + '="' + dialogId + '"]'),
+      _show = function () {
         that.show(this);
       };
 
-    for (var i=0; i<triggers.length; i++) {
+    for (var i = 0; i < triggers.length; i++) {
       var trigger = triggers[i];
-      trigger.setAttribute('aria-controls',dialogId);
-      meTools.registerEvent(that,triggers[i],'click',_show);
+      trigger.setAttribute('aria-controls', dialogId);
+      meTools.registerEvent(that, triggers[i], 'click', _show);
     }
 
     return that;
@@ -424,32 +427,55 @@
 
   /* display */
 
-  function show (immediate) {
+  /**
+   *
+   * @param immediate Bool; show immediately (without transition)
+   * @param viewProps
+   * @returns {show}
+   */
+  function show(immediate, viewProps) {
+    addViewProps.call(this, viewProps);
     this.mainShowTransition.show(immediate);
     return this;
   }
 
-  function hide (immediate) {
+  function hide(immediate) {
+    clearViewProps.call(this);
     this.mainShowTransition.hide(immediate);
     return this;
   }
 
+  function addViewProps(viewProps) {
+    var that = this;
+    if (viewProps) {
+      that.container.setAttribute(that.options.viewPropsAttribute,viewProps);
+    }
+    return that;
+  }
+
+  function clearViewProps() {
+    var that = this;
+    that.container.removeAttribute(that.options.viewPropsAttribute);
+    return that;
+  }
+
   /* events */
 
-  function triggeredShow (detail) {
+  function triggeredShow(detail) {
     this.show(detail.trigger);
   }
-  function triggeredHide () {
+
+  function triggeredHide() {
     this.hide();
   }
 
-  function handleClick (event) {
+  function handleClick(event) {
     var
       that = this,
       options = that.options;
   }
 
-  function handleKeyboard (event) {
+  function handleKeyboard(event) {
     if (!event.ctrlKey && !event.altKey) {
       var code = (event.keyCode ? event.keyCode : event.which);
 
@@ -460,10 +486,10 @@
     }
   }
 
-  function handleBackdropClick (target) {
+  function handleBackdropClick(target) {
     var that = this;
 
-    if (that.backdrop==target) {
+    if (that.backdrop == target) {
       if (that.options.closeOnBackdrop) {
         hide.call(that);
       } else {
@@ -476,25 +502,27 @@
 
   /* handle trigger element */
 
-  function setTrigger (trigger) {
+  function setTrigger(trigger) {
     this.trigger = trigger;
     return this;
   }
-  function focusTrigger () {
+
+  function focusTrigger() {
     var that = this;
     if (that.trigger) {
       that.trigger.focus();
     }
     return that;
   }
-  function unsetTrigger () {
+
+  function unsetTrigger() {
     this.trigger = null;
     return this;
   }
 
   /* focus */
 
-  function setFocus () {
+  function setFocus() {
     var
       that = this,
       options = that.options,
@@ -502,11 +530,11 @@
       focus = null,
       focusables = that.meTrapFocus.getTabable();
 
-    if (typeof getFocusElement==='function') {
+    if (typeof getFocusElement === 'function') {
       focus = getFocusElement(that.container);
     }
     if (!focus) {
-      for (var i=0; i<focusables.length; i++) {
+      for (var i = 0; i < focusables.length; i++) {
         if (!focusables[i].matches(options.closeSelector)) {
           focus = focusables[i];
           break;
@@ -528,11 +556,34 @@
 
   /**
    * Show the dialog
-   * @param trigger DOM-element; the element, that triggered the show
+   * @param trigger DOM-element; optional; the element, that triggered the show
+   * @param immediate Bool; optional; default is false; show immediately (without transition)
+   * @param viewProps String; optional; string to add to the container in the viewPropsAttribute
    * @returns {meDialog}
    */
-  meDialog.prototype.show = function (trigger) {
-    return show.call(setTrigger.call(this,trigger));
+  meDialog.prototype.show = function () {
+    var
+      that = this,
+      trigger,
+      immediate,
+      viewProps;
+    for (var i=0; i<arguments.length; i++) {
+      var
+        argument = arguments[i],
+        type = typeof argument;
+
+      if (type === 'boolean') {
+        immediate = argument;
+      } else if (type === 'string') {
+        viewProps = argument;
+      } else if (argument.tagName) {
+        trigger = argument;
+      }
+    }
+    if (trigger) {
+      setTrigger.call(that, trigger);
+    }
+    return show.call(that, immediate, viewProps);
   };
 
   /**
@@ -599,9 +650,9 @@
   /**
    * Auto init all dialogs with the attribute AUTO_INIT
    */
-  function autoInit () {
-    var dialogs = document.querySelectorAll('['+AUTO_INIT+']');
-    for (var i=0; i<dialogs.length; i++) {
+  function autoInit() {
+    var dialogs = document.querySelectorAll('[' + AUTO_INIT + ']');
+    for (var i = 0; i < dialogs.length; i++) {
       new meDialog(dialogs[i]);
     }
   }
