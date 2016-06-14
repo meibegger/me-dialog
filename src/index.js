@@ -605,6 +605,13 @@
   };
 
   /**
+   * @returns {boolean} true if the component is in the process of hiding or hidden
+   */
+  meDialog.prototype.canShow = function () {
+    return this.mainShowTransition.canShow();
+  };
+
+  /**
    * Destroy the widget
    * @returns {null}
    */
