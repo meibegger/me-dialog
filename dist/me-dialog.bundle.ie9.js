@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.6 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.7 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2514,6 +2514,13 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   meDialog.prototype.update = function () {
     this.meTrapFocus.update();
     return this;
+  };
+
+  /**
+   * @returns {boolean} true if the component is in the process of hiding or hidden
+   */
+  meDialog.prototype.canShow = function () {
+    return this.mainShowTransition.canShow();
   };
 
   /**
