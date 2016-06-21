@@ -375,6 +375,9 @@
 
     function afterHide(data) {
 
+      // clear the view specific properties
+      clearViewProps.call(this);
+
       // unlock the view
       if (options.lockView && !that.keepBackdrop) {
         meLockView.unlock();
@@ -440,7 +443,6 @@
   }
 
   function hide(immediate) {
-    clearViewProps.call(this);
     this.mainShowTransition.hide(immediate);
     return this;
   }
