@@ -376,7 +376,7 @@
     function afterHide(data) {
 
       // clear the view specific properties
-      clearViewProps.call(this);
+      clearViewProps.call(that);
 
       // unlock the view
       if (options.lockView && !that.keepBackdrop) {
