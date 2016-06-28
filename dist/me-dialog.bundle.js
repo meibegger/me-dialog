@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.8 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.9 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2353,7 +2353,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     function afterHide(data) {
 
       // clear the view specific properties
-      clearViewProps.call(this);
+      clearViewProps.call(that);
 
       // unlock the view
       if (options.lockView && !that.keepBackdrop) {
@@ -2696,7 +2696,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 1.0.8 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.9 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
