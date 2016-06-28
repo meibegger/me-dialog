@@ -578,7 +578,7 @@
         immediate = argument;
       } else if (type === 'string') {
         viewProps = argument;
-      } else if (argument.tagName) {
+      } else if (type === 'object' && argument.tagName) {
         trigger = argument;
       }
     }
