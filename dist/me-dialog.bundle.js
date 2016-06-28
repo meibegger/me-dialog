@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.7 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.8 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -616,7 +616,7 @@ define('element',[],function () {
    * @param selector String; optional; selector to match the parents against
    * @param container DOM-Element; optional; max parent to check; default is body
    * @param single Boolean; optional; return only the next matching ancestor
-   * @return array
+   * @return mixed; array or false/element if single===true
    */
   function getAncestors(element, selector, container, single) {
     // prepare arguments
@@ -624,7 +624,7 @@ define('element',[],function () {
       argSelector = false,
       argContainer = false,
       argSingle = false;
-    for (var i = 0; i < arguments.length; i++) {
+    for (var i = 1; i < arguments.length; i++) {
       switch (typeof(arguments[i])) {
         case 'string':
           argSelector = arguments[i];
@@ -654,7 +654,7 @@ define('element',[],function () {
         if (parent === container) {
           return single ? false : parents;
         }
-        getAncestors(parent);
+        return getAncestors(parent);
       }
       ;
     return getAncestors(element);
@@ -989,7 +989,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   return api;
 
 });
-;(function (root, factory) {
+(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define('meLockView',[], factory);
   } else if (typeof exports === 'object') {
@@ -1041,7 +1041,11 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     documentElement,
 
   // cache the view-wrapper
-    viewWrapper
+    viewWrapper,
+
+  // before-lock subscriptions
+    beforeLockSubscriptions = {},
+    afterUnlockSubscriptions = {}
     ;
 
   /*
@@ -1049,6 +1053,24 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
    functions
    ---------------
    */
+
+  /**
+   * Subscribe a function to be called before locking the screen
+   * @param id String; id of the fn - used for unsubscribing
+   * @param fn Function; fn(windowScrollLeft, windowScrollTop) called before locking the screen
+   */
+  function subscribeBeforeLock(id, fn) {
+    beforeLockSubscriptions[id] = fn;
+  }
+
+  /**
+   * Subscribe a function to be called after unlocking the screen
+   * @param id String; id of the fn - used for unsubscribing
+   * @param fn Function; fn(windowScrollLeft, windowScrollTop) called after unlocking the screen
+   */
+  function subscribeAfterUnlock(id, fn) {
+    afterUnlockSubscriptions[id] = fn;
+  }
 
   /**
    * Lock the view
@@ -1061,6 +1083,11 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
         var
           scrollLeft = body.scrollLeft || documentElement.scrollLeft,
           scrollTop = body.scrollTop || documentElement.scrollTop;
+
+        // call the subscribed functions
+        for (var id in beforeLockSubscriptions) {
+          beforeLockSubscriptions[id](scrollLeft, scrollTop);
+        }
 
         // mark the view-wrapper as locked
         viewWrapper.setAttribute(viewAttribute, lockValue);
@@ -1096,6 +1123,11 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
 
         // scroll the body to the initial scroll position
         window.scrollTo(scrollLeft, scrollTop);
+
+        // call the subscribed functions
+        for (var id in afterUnlockSubscriptions) {
+          afterUnlockSubscriptions[id](scrollLeft, scrollTop);
+        }
       }
 
       // remember the unlock request
@@ -1105,7 +1137,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     }
   }
 
-  function isLocked () {
+  function isLocked() {
     return !!openLocks;
   }
 
@@ -1116,7 +1148,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
    */
 
   function init() {
-
     // get the elements holding the document scroll
     body = document.body;
     documentElement = document.documentElement;
@@ -1145,11 +1176,11 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
    */
 
   return {
-
     lock: lock,
     unlock: unlock,
-    isLocked: isLocked
-
+    isLocked: isLocked,
+    subscribeBeforeLock: subscribeBeforeLock,
+    subscribeAfterUnlock: subscribeAfterUnlock
   };
 
 }));
@@ -1159,7 +1190,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
  * Uses animationFrame - possibly use a polyfill for older browsers (http://caniuse.com/#feat=requestanimationframe)
  */
 
-;(function(root, factory) {
+(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define('meShowTransition',['meTools'], factory);
   } else if (typeof exports === 'object') {
@@ -1167,7 +1198,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   } else {
     root.meShowTransition = factory(meTools);
   }
-} (this, function(meTools) {
+}(this, function (meTools) {
 
   var
 
@@ -1189,6 +1220,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
         afterHide: false
       },
       transitionEndElement: false, // element to listen to the transitionend event on (default is the container); use this if you use transitions on more than 1 element on show/hide to define the element which ends the transitions
+      ignoreChildTransitions: false, // transitionEnd event bubbles - only listen to transitionEnd directly on the container (or transitionEndElement)
       transitionMaxTime: 500, // ms; timeout to end the show/hide transition states in case the transitionEnd event doesn't fire; set to 0 to not support transition
       indicators: { // classes added to mark states
         shown: 'me-shown', // set to the container as long as it is shown
@@ -1219,7 +1251,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     var that = this;
 
     // prepare arguments
-    if (typeof(show)!=='boolean') {
+    if (typeof(show) !== 'boolean') {
       options = show;
       show = false;
     }
@@ -1255,27 +1287,34 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
 
     that.options = {};
     that.container = null;
-    that.transitionEndTimeout = null;
+    that.showTransitionStartAnimation = null;
+    that.showTransitionEndTimeout = null;
+    that.hideTransitionStartAnimation = null;
+    that.hideTransitionEndTimeout = null;
+    that.showing = false;
+    that.hiding = false;
+    that.hidden = false;
 
     return that;
   }
 
-  function markShown () {
+  function markShown() {
     var that = this;
     that.container.classList.add(that.options.indicators.shown);
-    that.container.setAttribute('aria-hidden','false');
+    that.container.setAttribute('aria-hidden', 'false');
 
     return that;
   }
-  function markHidden () {
+
+  function markHidden() {
     var that = this;
     that.container.classList.remove(that.options.indicators.shown);
-    that.container.setAttribute('aria-hidden','true');
+    that.container.setAttribute('aria-hidden', 'true');
 
     return that;
   }
 
-  function showEnd (immediate) { // end of show
+  function showEnd(immediate) { // end of show
     immediate = immediate || false;
     var
       that = this,
@@ -1288,9 +1327,12 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       });
     }
 
+    that.showing = false;
+
     return that;
   }
-  function hideEnd (immediate) { // end of hide
+
+  function hideEnd(immediate) { // end of hide
     immediate = immediate || false;
     var
       that = this,
@@ -1299,6 +1341,9 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
 
     // hide container
     container.style.display = 'none';
+    that.hiding = false;
+    that.hidden = true;
+
     // mark as hidden
     markHidden.call(that);
 
@@ -1313,7 +1358,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     return that;
   }
 
-  function showTransitionEnd () {
+  function showTransitionEnd() {
     var
       that = this,
       options = that.options,
@@ -1323,9 +1368,10 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       ;
 
     // clear listeners
-    clearTimeout(that.transitionEndTimeout);
-    meTools.unregisterEvent(that,transitionEndElement,'webkitTransitionEnd');
-    meTools.unregisterEvent(that,transitionEndElement,'transitionend');
+    window.cancelAnimationFrame(that.showTransitionStartAnimation);
+    clearTimeout(that.showTransitionEndTimeout);
+    meTools.unregisterEvent(that, transitionEndElement, 'webkitTransitionEnd');
+    meTools.unregisterEvent(that, transitionEndElement, 'transitionend');
 
     // after transition
     if (afterTransitionFn) {
@@ -1341,7 +1387,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     return that;
   }
 
-  function hideTransitionEnd () {
+  function hideTransitionEnd() {
     var
       that = this,
       options = that.options,
@@ -1351,9 +1397,10 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       ;
 
     // clear listeners
-    clearTimeout(that.transitionEndTimeout);
-    meTools.unregisterEvent(that,transitionEndElement,'webkitTransitionEnd');
-    meTools.unregisterEvent(that,transitionEndElement,'transitionend');
+    window.cancelAnimationFrame(that.hideTransitionStartAnimation);
+    clearTimeout(that.hideTransitionEndTimeout);
+    meTools.unregisterEvent(that, transitionEndElement, 'webkitTransitionEnd');
+    meTools.unregisterEvent(that, transitionEndElement, 'transitionend');
 
     // after transition
     if (afterTransitionFn) {
@@ -1383,28 +1430,33 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   meShowTransition.prototype.show = function (immediate) {
     var
       that = this,
-      container = that.container;
+      options = that.options,
+      container = that.container,
+      transitionEndElement = options.transitionEndElement || container;
 
-    function _showTransitionEnd () {
-      showTransitionEnd.call(that);
+    function _showTransitionEnd(event) {
+      if (!options.ignoreChildTransitions || !event || !event.target || event.target === transitionEndElement) {
+        showTransitionEnd.call(that);
+      }
     }
 
-    if (immediate || container.getAttribute('aria-hidden') === 'true') {
-
+    if (immediate || that.canShow()) {
       var
-        options = that.options,
-
         callbacks = options.callbacks,
         beforeShowFn = callbacks.beforeShow,
         beforeTransitionFn = callbacks.beforeShowTransition,
 
-        indicators = options.indicators,
+        indicators = options.indicators;
 
-        transitionEndElement = options.transitionEndElement || container
-        ;
+      // remember that we are showing
+      that.showing = true;
 
-      // start show (end possible hide-transition)
-      hideTransitionEnd.call(that);
+      // end possible hide-transition
+      if (that.hiding) {
+        hideTransitionEnd.call(that);
+      }
+
+      that.hidden = false;
 
       // before show
       if (beforeShowFn) {
@@ -1418,8 +1470,15 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       container.style.display = 'block';
 
       if (!immediate && options.transitionMaxTime) { // transition
-        window.requestAnimationFrame(function () { // wait 2 ticks for the browser to apply the visibility
-          window.requestAnimationFrame(function () {
+
+        // init transition-end-handling
+        meTools.registerEvent(that, transitionEndElement, 'webkitTransitionEnd', _showTransitionEnd);
+        meTools.registerEvent(that, transitionEndElement, 'transitionend', _showTransitionEnd);
+        // set a transition-timeout in case the end-event doesn't fire
+        that.showTransitionEndTimeout = setTimeout(_showTransitionEnd, options.transitionMaxTime);
+
+        that.showTransitionStartAnimation = window.requestAnimationFrame(function () { // wait 2 ticks for the browser to apply the visibility
+          that.showTransitionStartAnimation = window.requestAnimationFrame(function () {
 
             // before transition
             if (beforeTransitionFn) {
@@ -1435,18 +1494,12 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
             // start show transition and listeners
             container.classList.add(indicators.show);
 
-            meTools.registerEvent(that,transitionEndElement,'webkitTransitionEnd', _showTransitionEnd);
-            meTools.registerEvent(that,transitionEndElement,'transitionend', _showTransitionEnd);
-
-            // set a transition-timeout in case the end-event doesn't fire
-            that.transitionEndTimeout = setTimeout(_showTransitionEnd, options.transitionMaxTime);
-
           });
         });
 
       } else { // immediate show
         markShown.call(that);
-        showEnd.call(that,immediate);
+        showEnd.call(that, immediate);
       }
 
     }
@@ -1462,28 +1515,31 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   meShowTransition.prototype.hide = function (immediate) {
     var
       that = this,
-      container = that.container;
+      options = that.options,
+      container = that.container,
+      transitionEndElement = options.transitionEndElement || container;
 
-    function _hideTransitionEnd () {
-      hideTransitionEnd.call(that);
+    function _hideTransitionEnd(event) {
+      if (!options.ignoreChildTransitions || !event || !event.target || event.target === transitionEndElement) {
+        hideTransitionEnd.call(that);
+      }
     }
 
-    if (immediate || container.getAttribute('aria-hidden') === 'false') {
+    if (immediate || !that.canShow()) {
       var
-
-        options = that.options,
-
         callbacks = options.callbacks,
         beforeHideFn = callbacks.beforeHide,
         beforeTransitionFn = callbacks.beforeHideTransition,
 
-        indicators = options.indicators,
+        indicators = options.indicators;
 
-        transitionEndElement = options.transitionEndElement || container
-        ;
+      // remember that we are showing
+      that.hiding = true;
 
-      // start hide (end possible show-transition)
-      showTransitionEnd.call(that);
+      // end possible show-transition
+      if (that.showing) {
+        showTransitionEnd.call(that);
+      }
 
       // before hide
       if (beforeHideFn) {
@@ -1494,8 +1550,15 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       }
 
       if (!immediate && options.transitionMaxTime) { // transition
-        window.requestAnimationFrame(function () { // wait 2 ticks for the browser to apply beforeHideFn changes
-          window.requestAnimationFrame(function () {
+
+        // init transition-end-handling
+        meTools.registerEvent(that, transitionEndElement, 'webkitTransitionEnd', _hideTransitionEnd);
+        meTools.registerEvent(that, transitionEndElement, 'transitionend', _hideTransitionEnd);
+        // set a transition-timeout in case the end-event doesn't fire
+        that.hideTransitionEndTimeout = setTimeout(_hideTransitionEnd, options.transitionMaxTime);
+
+        that.hideTransitionStartAnimation = window.requestAnimationFrame(function () { // wait 2 ticks for the browser to apply beforeHideFn changes
+          that.hideTransitionStartAnimation = window.requestAnimationFrame(function () {
 
             // before transition
             if (beforeTransitionFn) {
@@ -1508,12 +1571,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
             // start show transition and listeners
             container.classList.add(indicators.hide);
 
-            meTools.registerEvent(that,transitionEndElement,'webkitTransitionEnd', _hideTransitionEnd);
-            meTools.registerEvent(that,transitionEndElement,'transitionend', _hideTransitionEnd);
-
-            // set a transition-timeout in case the end-event doesn't fire
-            that.transitionEndTimeout = setTimeout(_hideTransitionEnd, options.transitionMaxTime);
-
           });
         });
 
@@ -1525,6 +1582,13 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     return that;
   };
 
+  /**
+   *
+   * @returns {boolean} true if the component is in the process of hiding or hidden
+   */
+  meShowTransition.prototype.canShow = function () {
+    return (this.hiding || this.hidden);
+  };
 
   /**
    * Destroy the instance
@@ -1537,7 +1601,8 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       ;
 
     // clear listeners
-    clearTimeout(that.transitionEndTimeout);
+    clearTimeout(that.showTransitionEndTimeout);
+    clearTimeout(that.hideTransitionEndTimeout);
     meTools.unregisterEvent(that);
 
     // remove added classes
@@ -2287,6 +2352,9 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
 
     function afterHide(data) {
 
+      // clear the view specific properties
+      clearViewProps.call(this);
+
       // unlock the view
       if (options.lockView && !that.keepBackdrop) {
         meLockView.unlock();
@@ -2352,7 +2420,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   }
 
   function hide(immediate) {
-    clearViewProps.call(this);
     this.mainShowTransition.hide(immediate);
     return this;
   }
@@ -2488,7 +2555,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
         immediate = argument;
       } else if (type === 'string') {
         viewProps = argument;
-      } else if (argument.tagName) {
+      } else if (type === 'object' && argument.tagName) {
         trigger = argument;
       }
     }
@@ -2629,7 +2696,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 1.0.7 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.8 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
