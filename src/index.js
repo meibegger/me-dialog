@@ -157,8 +157,6 @@
     initShow.call(that);
     initTriggers.call(that);
 
-    hide.call(that, true);
-
     return that;
   }
 
