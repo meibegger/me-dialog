@@ -379,8 +379,8 @@
       clearViewProps.call(that);
 
       // unlock the view
-      if (options.lockView && !that.keepBackdrop) {
-        meLockView.unlock();
+      if (options.lockView) {
+        meLockView.unlock(!that.keepBackdrop);
       }
       that.keepBackdrop = false;
 
