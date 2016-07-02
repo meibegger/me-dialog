@@ -16,6 +16,8 @@
    ---------------
    */
 
+    NAMESPACE = 'meDialog',
+
   // code of the escape key
     KEY_ESCAPE = 27,
 
@@ -167,7 +169,7 @@
       containerElement = meTools.getElementById(container);
 
     if (!containerElement) {
-      throw 'meDialog: Container element not found';
+      throw NAMESPACE + ': Container element not found';
     }
 
     // set role
@@ -205,7 +207,7 @@
     }
 
     if (!backdropElement) {
-      throw 'meDialog: Backdrop element not found';
+      throw NAMESPACE + ': Backdrop element not found';
     }
 
     backdropElement.setAttribute('tabindex', '-1'); // "Set the tabindex of the backdrop element to tabindex="-1" to prevent it from receiving focus via a keyboard event or mouse click."
@@ -219,7 +221,21 @@
       // build meShowTransition options
       var _options = meTools.copyValues(that.options);
       _options.callbacks = {}; // remove all callbacks
-      that.backdropShowTransition = new meShowTransition(backdropElement, _options);
+
+      if (backdropElement.data && backdropElement.data[NAMESPACE] && backdropElement.data[NAMESPACE].transition) { // backdrop already has a transition assigned (for instance if multiple dialogs use the same backdrop)
+        that.backdropShowTransition = backdropElement.data[NAMESPACE].transition; // link the existing transition to the dialog instance
+        backdropElement.data[NAMESPACE].assignedTransitions++; // remember the new linkage
+
+      } else {
+        // create transition instance
+        that.backdropShowTransition = new meShowTransition(backdropElement, _options);
+
+        // save transition instance
+        backdropElement.data = backdropElement.data || {};
+        backdropElement.data[NAMESPACE] = backdropElement.data[NAMESPACE] || {};
+        backdropElement.data[NAMESPACE].transition = that.backdropShowTransition;
+        backdropElement.data[NAMESPACE].assignedTransitions = 1;
+      }
     }
 
     return backdropElement;
@@ -246,7 +262,7 @@
       container.setAttribute('aria-label', labelDef);
 
     } else {
-      throw 'meDialog: Label element not found';
+      throw NAMESPACE + ': Label element not found';
     }
 
     return that;
@@ -639,8 +655,14 @@
 
     that.meTrapFocus.destroy();
     that.mainShowTransition.destroy();
+
     if (that.backdropShowTransition) {
-      that.backdropShowTransition.destroy();
+      if (that.backdrop.data[NAMESPACE].assignedTransitions > 1) { // an other dialog still depends on the the backdrop transition
+        that.backdrop.data[NAMESPACE].assignedTransitions--; // remove the linkage
+
+      } else {
+        that.backdropShowTransition.destroy(); // destroy the transition instance
+      }
     }
 
     initProperties.call(that);
