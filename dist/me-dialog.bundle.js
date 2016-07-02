@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.9 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.10 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -1105,9 +1105,16 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     }
   }
 
-  function unlock() {
+  /**
+   * Unlock the view
+   * @param real bool; optional; default true; if false, only remove the lock from the count, but keep the view locked
+   */
+  function unlock(real) {
     if (viewWrapper) {
-      if (openLocks === 1) { // last unlock request
+      if (typeof real === 'undefined') {
+        real = true;
+      }
+      if (real && openLocks === 1) { // last unlock request
 
         // get the current scroll values
         var
@@ -1993,6 +2000,8 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
    ---------------
    */
 
+    NAMESPACE = 'meDialog',
+
   // code of the escape key
     KEY_ESCAPE = 27,
 
@@ -2134,8 +2143,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     initShow.call(that);
     initTriggers.call(that);
 
-    hide.call(that, true);
-
     return that;
   }
 
@@ -2146,7 +2153,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       containerElement = meTools.getElementById(container);
 
     if (!containerElement) {
-      throw 'meDialog: Container element not found';
+      throw NAMESPACE + ': Container element not found';
     }
 
     // set role
@@ -2184,7 +2191,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
     }
 
     if (!backdropElement) {
-      throw 'meDialog: Backdrop element not found';
+      throw NAMESPACE + ': Backdrop element not found';
     }
 
     backdropElement.setAttribute('tabindex', '-1'); // "Set the tabindex of the backdrop element to tabindex="-1" to prevent it from receiving focus via a keyboard event or mouse click."
@@ -2198,7 +2205,21 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       // build meShowTransition options
       var _options = meTools.copyValues(that.options);
       _options.callbacks = {}; // remove all callbacks
-      that.backdropShowTransition = new meShowTransition(backdropElement, _options);
+
+      if (backdropElement.data && backdropElement.data[NAMESPACE] && backdropElement.data[NAMESPACE].transition) { // backdrop already has a transition assigned (for instance if multiple dialogs use the same backdrop)
+        that.backdropShowTransition = backdropElement.data[NAMESPACE].transition; // link the existing transition to the dialog instance
+        backdropElement.data[NAMESPACE].assignedTransitions++; // remember the new linkage
+
+      } else {
+        // create transition instance
+        that.backdropShowTransition = new meShowTransition(backdropElement, _options);
+
+        // save transition instance
+        backdropElement.data = backdropElement.data || {};
+        backdropElement.data[NAMESPACE] = backdropElement.data[NAMESPACE] || {};
+        backdropElement.data[NAMESPACE].transition = that.backdropShowTransition;
+        backdropElement.data[NAMESPACE].assignedTransitions = 1;
+      }
     }
 
     return backdropElement;
@@ -2225,7 +2246,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       container.setAttribute('aria-label', labelDef);
 
     } else {
-      throw 'meDialog: Label element not found';
+      throw NAMESPACE + ': Label element not found';
     }
 
     return that;
@@ -2356,8 +2377,8 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
       clearViewProps.call(that);
 
       // unlock the view
-      if (options.lockView && !that.keepBackdrop) {
-        meLockView.unlock();
+      if (options.lockView) {
+        meLockView.unlock(!that.keepBackdrop);
       }
       that.keepBackdrop = false;
 
@@ -2618,8 +2639,14 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
 
     that.meTrapFocus.destroy();
     that.mainShowTransition.destroy();
+
     if (that.backdropShowTransition) {
-      that.backdropShowTransition.destroy();
+      if (that.backdrop.data[NAMESPACE].assignedTransitions > 1) { // an other dialog still depends on the the backdrop transition
+        that.backdrop.data[NAMESPACE].assignedTransitions--; // remove the linkage
+
+      } else {
+        that.backdropShowTransition.destroy(); // destroy the transition instance
+      }
     }
 
     initProperties.call(that);
@@ -2696,7 +2723,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 1.0.9 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.10 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
