@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.10 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.11 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -1741,7 +1741,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
             focusLast.call(that,tabables);
 
             event.preventDefault();
-            event.stopPropagation();
           }
 
         } else {    // tab
@@ -1753,7 +1752,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
             focusFirst.call(that,tabables);
 
             event.preventDefault();
-            event.stopPropagation();
           }
         }
       }
@@ -2723,7 +2721,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 1.0.10 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 1.0.11 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
