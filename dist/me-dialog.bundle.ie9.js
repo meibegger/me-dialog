@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 1.0.11 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 2.0.0 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -443,7 +443,22 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
-define('variable',[],function () {
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define('meTools.fn.variable', [
+    ], factory);
+  } else if(typeof exports === 'object') {
+    if (typeof module === 'object') {
+      module.exports = factory();
+    } else {
+      exports['meTools.fn.variable'] = factory();
+    }
+  } else {
+    root.meTools = root.meTools || {};
+    root.meTools.fn = root.meTools.fn || {};
+    root.meTools.fn.variable = factory();
+  }
+}(this, function () {
 
   /*
    ---------------
@@ -474,7 +489,7 @@ define('variable',[],function () {
           : val);
       }
 
-    } else if (vals && typeof(vals) === 'object' && typeof(vals.tagName) === 'undefined') {
+    } else if (vals && typeof(vals) === 'object' && typeof(vals.tagName) === 'undefined' && vals !== window && vals !== document) {
       copy = {};
       for (var key in vals) {
         val = vals[key];
@@ -550,9 +565,26 @@ define('variable',[],function () {
     isEmptyObject: isEmptyObject
   };
 
-});
+}));
 
-define('element',[],function () {
+define("variable", function(){});
+
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define('meTools.fn.element', [
+    ], factory);
+  } else if(typeof exports === 'object') {
+    if (typeof module === 'object') {
+      module.exports = factory();
+    } else {
+      exports['meTools.fn.element'] = factory();
+    }
+  } else {
+    root.meTools = root.meTools || {};
+    root.meTools.fn = root.meTools.fn || {};
+    root.meTools.fn.element = factory();
+  }
+}(this, function () {
 
   /*
    ---------------
@@ -748,9 +780,29 @@ define('element',[],function () {
     addAttributeValues: addAttributeValues,
     removeAttributeValues: removeAttributeValues
   };
-});
 
-define('event',['./variable'],function (variable) {
+}));
+
+define("element", function(){});
+
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define('meTools.fn.event', [
+      'meTools.fn.variable'
+    ], factory);
+  } else if(typeof exports === 'object') {
+    var fnVariable = require('./variable');
+    if (typeof module === 'object') {
+      module.exports = factory(fnVariable);
+    } else {
+      exports['meTools.fn.event'] = factory(fnVariable);
+    }
+  } else {
+    root.meTools = root.meTools || {};
+    root.meTools.fn = root.meTools.fn || {};
+    root.meTools.fn.event = factory(root.meTools.fn.variable);
+  }
+}(this, function (fnVariable) {
 
   /*
    ---------------
@@ -832,7 +884,7 @@ define('event',['./variable'],function (variable) {
     var typeListeners = registeredEvents[type];
 
     if (!target) {
-      var cTypeListeners = variable.copyValues(typeListeners);
+      var cTypeListeners = fnVariable.copyValues(typeListeners);
       while (cTypeListeners.length) {
         var typeListener = cTypeListeners.shift();
         unregisterEvent(scope, typeListener.tg, type, fn, capture);
@@ -972,7 +1024,10 @@ define('event',['./variable'],function (variable) {
     throttle: throttle,
     debounce: debounce
   };
-});
+
+}));
+
+define("event", function(){});
 
 
 define('meTools',['variable','element','event'], function (copy,element,event) {
@@ -1249,7 +1304,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
    *
    * meShowTransition(container [,show] [,options])
    *
-   * @param container mixed; id or element; the container in which the focus should be maintained
+   * @param container mixed; id or element; the container to show/hide
    * @param show boolean; optional; show the container immediately (without transitions) onInit; default is false
    * @param options object; optional; overwrite the default options
    */
@@ -1590,7 +1645,6 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   };
 
   /**
-   *
    * @returns {boolean} true if the component is in the process of hiding or hidden
    */
   meShowTransition.prototype.canShow = function () {

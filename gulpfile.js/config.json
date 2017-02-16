@@ -47,10 +47,7 @@
           "paths": {
             "almond": "../node_modules/almond/almond",
             "meDialog": "index",
-            "meTools": "me-tools.custom",
-            "variable": "../node_modules/me-tools/src/fn/variable",
-            "element": "../node_modules/me-tools/src/fn/element",
-            "event": "../node_modules/me-tools/src/fn/event",
+            "meTools": "../node_modules/me-tools/dist/me-tools",
             "meLockView": "../node_modules/me-lock-view/src/index",
             "meShowTransition": "../node_modules/me-show-transition/src/index",
             "meTrapFocus": "../node_modules/me-trap-focus/src/index",
