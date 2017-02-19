@@ -687,7 +687,7 @@
   }
 
   // auto-initialize marked dialogs as soon as the document has finished loading. We can now access the DOM elements.
-  if (document.readyState !== 'loading') {
+  if ( document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading' ) {
     autoInit();
   } else {
     window.addEventListener('DOMContentLoaded', function loaded() {
