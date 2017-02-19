@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 2.0.0 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 2.0.1 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2723,7 +2723,7 @@ define('meTools',['variable','element','event'], function (copy,element,event) {
   }
 
   // auto-initialize marked dialogs as soon as the document has finished loading. We can now access the DOM elements.
-  if (document.readyState !== 'loading') {
+  if ( document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading' ) {
     autoInit();
   } else {
     window.addEventListener('DOMContentLoaded', function loaded() {
