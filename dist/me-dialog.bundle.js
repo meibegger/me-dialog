@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 2.0.4 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 2.0.6 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2798,7 +2798,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 2.0.4 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 2.0.6 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
