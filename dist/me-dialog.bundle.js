@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 2.0.2 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 2.0.3 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2067,28 +2067,28 @@ define("almond", function(){});
 
   var
 
-  /*
-   ---------------
-   constants
-   ---------------
-   */
+    /*
+     ---------------
+     constants
+     ---------------
+     */
 
     NAMESPACE = 'meDialog',
 
-  // code of the escape key
+    // code of the escape key
     KEY_ESCAPE = 27,
 
-  // if this attribute is set on a dialog container, the dialog will be initialized automatically
+    // if this attribute is set on a dialog container, the dialog will be initialized automatically
     AUTO_INIT = "data-me-dialog",
 
-  // if this attribute is set on an element with the id of the dialog container as value, click on the element will show the dialog (data-me-show-dialog="DIALOG-ID")
+    // if this attribute is set on an element with the id of the dialog container as value, click on the element will show the dialog (data-me-show-dialog="DIALOG-ID")
     TRIGGER_SHOW = "data-me-show-dialog",
 
-  /*
-   ---------------
-   settings
-   ---------------
-   */
+    /*
+     ---------------
+     settings
+     ---------------
+     */
 
 
     defaultOptions = {
@@ -2366,7 +2366,7 @@ define("almond", function(){});
       options = that.options,
       callbacks = options.callbacks,
 
-    // build meShowTransition options
+      // build meShowTransition options
       _options = meTools.copyValues(options);
     _options.callbacks = {}; // remove all callbacks
 
@@ -2485,15 +2485,12 @@ define("almond", function(){});
     var
       that = this,
       dialogId = meTools.getId(that.container, that.options.idPrefix),
-      triggers = document.querySelectorAll('[' + TRIGGER_SHOW + '="' + dialogId + '"]'),
-      _show = function () {
-        that.show(this);
-      };
+      triggers = document.querySelectorAll('[' + TRIGGER_SHOW + '="' + dialogId + '"]');
 
     for (var i = 0; i < triggers.length; i++) {
       var trigger = triggers[i];
       trigger.setAttribute('aria-controls', dialogId);
-      meTools.registerEvent(that, triggers[i], 'click', _show);
+      meTools.registerEvent(that, trigger, 'click', that.show.bind(that, trigger));
     }
 
     return that;
@@ -2632,6 +2629,7 @@ define("almond", function(){});
    * @param trigger DOM-element; optional; the element, that triggered the show
    * @param immediate Bool; optional; default is false; show immediately (without transition)
    * @param viewProps String; optional; string to add to the container in the viewPropsAttribute
+   * @param event eventObject; optional;
    * @returns {meDialog}
    */
   meDialog.prototype.show = function () {
@@ -2649,8 +2647,12 @@ define("almond", function(){});
         immediate = argument;
       } else if (type === 'string') {
         viewProps = argument;
-      } else if (type === 'object' && argument.tagName) {
-        trigger = argument;
+      } else if (type === 'object') {
+        if (argument.tagName) {
+          trigger = argument;
+        } else if (argument.preventDefault) {
+          argument.preventDefault();
+        }
       }
     }
     if (trigger) {
@@ -2796,7 +2798,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 2.0.2 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 2.0.3 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
