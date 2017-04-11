@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 2.0.6 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 3.0.0 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -444,7 +444,7 @@ var requirejs, require, define;
 define("almond", function(){});
 
 /**
- * @license me-tools 2.0.1 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-tools 3.0.0 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-tools for details
  */
@@ -743,13 +743,14 @@ define("almond", function(){});
   /**
    * Remove one or more values from an attribute.
    *
-   * removeAttributeValues(element, attributeName, values)
+   * removeAttributeValues(element, attributeName, values, keepEmptyAttribute)
    *
    * @param element DOM-element
    * @param attributeName string
    * @param values mixed; string or array of strings
+   * @param keepEmptyAttribute bool
    */
-  function removeAttributeValues(element, attributeName, values) {
+  function removeAttributeValues(element, attributeName, values, keepEmptyAttribute) {
     var attributeVal = element.getAttribute(attributeName);
     if (attributeVal) {
       var
@@ -761,12 +762,183 @@ define("almond", function(){});
         expStart + values + expEnd, 'g'),
         '');
 
-      if (attributeVal) {
+      if (keepEmptyAttribute || attributeVal) {
         element.setAttribute(attributeName, attributeVal);
       } else {
         element.removeAttribute(attributeName);
       }
     }
+  }
+
+  /**
+   * Checks if an attribute has a value (word).
+   *
+   * hasAttributeValue(element, attributeName, value)
+   *
+   * @param element DOM-element
+   * @param attributeName string
+   * @param value string
+   * @returns {boolean}
+   */
+  function hasAttributeValue(element, attributeName, value) {
+    var attributeVal = element.getAttribute(attributeName);
+    if (attributeVal) {
+      var
+        expStart = '((^| )',
+        expEnd = '(?= |$))';
+
+      return !!attributeVal.match(new RegExp(expStart + value + expEnd, 'g'));
+    }
+    return false;
+  }
+
+  /**
+   * Get all radio-buttons belonging to a radio-button's group
+   * @param radio DOM-Element radio element
+   * @returns []
+   */
+  function getRadioGroup(radio) {
+    // get the form for the radiobutton
+    var
+      form = getAncestors(radio, 'form', true) || // radiobutton is contained in a form
+        document,
+      name = radio.getAttribute('name');
+
+    return [].slice.call(form.querySelectorAll('input[type="radio"][name="' + name + '"]'));
+  }
+
+
+  /**
+   * Returns all focusable elements, ordered by tabindex
+   * @param container DOM-Element; required
+   * @param selector String selector for elements which are focusable; optionsl; default is 'a,frame,iframe,input:not([type=hidden]),select,textarea,button,*[tabindex]'
+   * @returns {Array}
+   */
+  function fetchFocusables (container, selector) {
+    selector = selector || 'a,frame,iframe,input:not([type=hidden]),select,textarea,button,*[tabindex]:not([tabindex="-1"])';
+    return orderByTabindex(container.querySelectorAll(selector));
+
+  }
+
+  /**
+   * @param focusables Array of Dom-Elements
+   * @returns {Array}
+   */
+  function orderByTabindex (focusables) {
+    var
+      byTabindex = [],
+      ordered = [];
+
+    for (var i = 0; i < focusables.length; i++) {
+      var
+        focusable = focusables[i],
+        tabindex = Math.max(0, focusable.getAttribute('tabindex') || 0);
+
+      byTabindex[tabindex] = byTabindex[tabindex] || [];
+      byTabindex[tabindex].push(focusable);
+    }
+
+    for (var j in byTabindex) {
+      for (var k in byTabindex[j]) {
+        ordered.push(byTabindex[j][k]);
+      }
+    }
+
+    return ordered;
+  }
+
+  /**
+   * Return not disabled, visible, tabable-radio ordered by the specified tab-direction
+   * @param focusables Array of DOM-Elements; required
+   * @param tabDirection int; optional; tab-direction (-1 or 1); default is 1
+   * @returns {Array} or false
+   */
+  function getFocusables (focusables, tabDirection) {
+    // prepare argument
+    tabDirection = typeof(tabDirection) === 'undefined' ? 1 : tabDirection;
+
+    var
+      filtered = [],
+      doneRadios = []; // already processed radio-buttons
+
+    function evalCandidate(candidate) {
+      if (candidate.matches(':not([disabled])') && (candidate.offsetWidth || candidate.offsetHeight)) { // not disabled & visible
+        if (candidate.matches('input[type="radio"]')) { // remove all radio buttons which are not tabable
+          if (doneRadios.indexOf(candidate) === -1) { // group of this radio not processed yet
+            // get radio-group
+            var
+              radioGroup = getRadioGroup(candidate),
+              focusableRadio = null;
+
+            doneRadios = doneRadios.concat(radioGroup);
+
+            // get tabable radios of the group (checked or first&last of group)
+            for (var j = 0; j < radioGroup.length; j++) {
+              var radio = radioGroup[j];
+              if (radio.checked) {
+                focusableRadio = radio;
+                break;
+              }
+            }
+            if (!focusableRadio) {
+              focusableRadio = tabDirection === -1 ? radioGroup[radioGroup.length-1] : radioGroup[0]; // default is tabable in tab-direction!!!
+            }
+            return focusableRadio;
+          }
+
+        } else {
+          return candidate;
+        }
+
+        return false;
+      }
+    }
+
+    // remove all elements which are not tabable
+    if (tabDirection === 1) {
+      for (var i = 0; i < focusables.length; i++) {
+        var tabable = evalCandidate(focusables[i]);
+        if (tabable) {
+          filtered.push(tabable);
+        }
+      }
+    } else {
+      for (var j = focusables.length-1; j >= 0; j--) {
+        var backwardTabable = evalCandidate(focusables[j]);
+        if (backwardTabable) {
+          filtered.push(backwardTabable);
+        }
+      }
+    }
+
+    return filtered;
+  }
+
+  /**
+   *
+   * @param container DOM-Element
+   * @param fn(container, focusables) Function returning the element to focus
+   */
+  function focusInside(container, fn) {
+    var
+      toFocus = null,
+      focusables = getFocusables(fetchFocusables(container));
+
+    if (typeof fn === 'function') {
+      toFocus = fn(container, focusables);
+    }
+    if (!toFocus && focusables.length) {
+      toFocus = focusables[0];
+    }
+    if (!toFocus) {
+      var containerTabindex = container.getAttribute('tabindex');
+      if (!containerTabindex) {
+        container.setAttribute('tabindex', '-1');
+      }
+      toFocus = container;
+    }
+
+    toFocus.focus();
   }
 
   /*
@@ -781,7 +953,12 @@ define("almond", function(){});
     getAncestors: getAncestors,
     isParent: isParent,
     addAttributeValues: addAttributeValues,
-    removeAttributeValues: removeAttributeValues
+    removeAttributeValues: removeAttributeValues,
+    hasAttributeValue: hasAttributeValue,
+    fetchFocusables: fetchFocusables,
+    orderByTabindex: orderByTabindex,
+    getFocusables: getFocusables,
+    focusInside: focusInside
   };
 
 }));
@@ -1030,7 +1207,7 @@ define("almond", function(){});
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('meTools',[
+    define('me-tools',[
       'meTools.fn.variable',
       'meTools.fn.element',
       'meTools.fn.event'
@@ -1067,7 +1244,7 @@ define("almond", function(){});
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('meLockView',[], factory);
+    define('me-lock-view',[], factory);
   } else if (typeof exports === 'object') {
     module.exports = factory();
   } else {
@@ -1275,11 +1452,17 @@ define("almond", function(){});
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('meShowTransition',['meTools'], factory);
+    define('me-show-transition',['me-tools'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(meTools);
+    var
+      meTools = require('me-tools');
+    if (typeof module === 'object') {
+      module.exports = factory(meTools);
+    } else {
+      exports.meShowTransition = factory(meTools);
+    }
   } else {
-    root.meShowTransition = factory(meTools);
+    root.meShowTransition = factory(root.meTools);
   }
 }(this, function (meTools) {
 
@@ -1703,7 +1886,7 @@ define("almond", function(){});
 }));
 ;(function(root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('meTrapFocus',['meTools'], factory);
+    define('me-trap-focus',['me-tools'], factory);
   } else if (typeof exports === 'object') {
     module.exports = factory(meTools);
   } else {
@@ -2057,13 +2240,23 @@ define("almond", function(){});
 }));
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('meDialog',['meTools', 'meLockView', 'meShowTransition', 'meTrapFocus'], factory);
+    define('meDialog',['me-tools', 'me-lock-view', 'me-show-transition', 'me-trap-focus'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    var
+      meTools = require('me-tools'),
+      meLockView = require('me-lock-view'),
+      meShowTransition = require('me-show-transition'),
+      meTrapFocus = require('me-trap-focus');
+    if (typeof module === 'object') {
+      module.exports = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    } else {
+      exports.meDialog = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    }
   } else {
-    root.meShowTransition = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    root.meDialog = factory(root.meTools, root.meLockView, root.meShowTransition, root.meTrapFocus);
   }
 }(this, function (meTools, meLockView, meShowTransition, meTrapFocus) {
+
 
   var
 
@@ -2798,7 +2991,7 @@ define("matchesPolyfill", (function (global) {
 }));
 
 /**
- * @license me-dialog 2.0.6 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 3.0.0 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
