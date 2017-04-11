@@ -1,12 +1,22 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['meTools', 'meLockView', 'meShowTransition', 'meTrapFocus'], factory);
+    define(['me-tools', 'me-lock-view', 'me-show-transition', 'me-trap-focus'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    var
+      meTools = require('me-tools'),
+      meLockView = require('me-lock-view'),
+      meShowTransition = require('me-show-transition'),
+      meTrapFocus = require('me-trap-focus');
+    if (typeof module === 'object') {
+      module.exports = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    } else {
+      exports.meDialog = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    }
   } else {
-    root.meShowTransition = factory(meTools, meLockView, meShowTransition, meTrapFocus);
+    root.meDialog = factory(root.meTools, root.meLockView, root.meShowTransition, root.meTrapFocus);
   }
 }(this, function (meTools, meLockView, meShowTransition, meTrapFocus) {
+
 
   var
 
