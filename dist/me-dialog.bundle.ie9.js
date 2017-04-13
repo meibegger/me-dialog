@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 3.0.0 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 3.0.1 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2544,8 +2544,7 @@ define("almond", function(){});
     that.meTrapFocus = new meTrapFocus(container, that.options);
 
     // add tabindex to the dialog to be able to focus it if there is no focusable element inside
-    var currentTabindex = container.getAttribute('tabindex');
-    if (!currentTabindex && currentTabindex !== 0) {
+    if (!container.hasAttribute('tabindex')) {
       container.setAttribute('data-tabindexed', 'true');
       container.setAttribute('tabindex', '-1');
     }
@@ -2903,6 +2902,8 @@ define("almond", function(){});
       that.trigger.removeAttribute('aria-expanded');
     }
 
+    meLockView.unlock(!that.keepBackdrop);
+
     meTools.unregisterEvent(that);
 
     that.meTrapFocus.destroy();
@@ -2957,6 +2958,7 @@ define("almond", function(){});
   return meDialog;
 
 }));
+
 /***********************************************************************************************************************
  * MATCHES
  * Add matches support for all IEs and others (http://caniuse.com/#feat=matchesselector)
