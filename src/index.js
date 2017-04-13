@@ -304,8 +304,7 @@
     that.meTrapFocus = new meTrapFocus(container, that.options);
 
     // add tabindex to the dialog to be able to focus it if there is no focusable element inside
-    var currentTabindex = container.getAttribute('tabindex');
-    if (!currentTabindex && currentTabindex !== 0) {
+    if (!container.hasAttribute('tabindex')) {
       container.setAttribute('data-tabindexed', 'true');
       container.setAttribute('tabindex', '-1');
     }
@@ -662,6 +661,8 @@
     if (that.trigger) {
       that.trigger.removeAttribute('aria-expanded');
     }
+
+    meLockView.unlock(!that.keepBackdrop);
 
     meTools.unregisterEvent(that);
 
