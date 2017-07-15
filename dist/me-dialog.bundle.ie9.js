@@ -1,5 +1,5 @@
 /**
- * @license me-dialog 3.0.1 Copyright (c) Mandana Eibegger <scripts@schoener.at>
+ * @license me-dialog 3.0.2 Copyright (c) Mandana Eibegger <scripts@schoener.at>
  * Available via the MIT license.
  * see: https://github.com/meibegger/me-dialog for details
  */
@@ -2682,6 +2682,7 @@ define("almond", function(){});
     for (var i = 0; i < triggers.length; i++) {
       var trigger = triggers[i];
       trigger.setAttribute('aria-controls', dialogId);
+      trigger.setAttribute('aria-expanded', 'false');
       meTools.registerEvent(that, trigger, 'click', that.show.bind(that, trigger));
     }
 
