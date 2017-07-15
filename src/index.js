@@ -442,6 +442,7 @@
     for (var i = 0; i < triggers.length; i++) {
       var trigger = triggers[i];
       trigger.setAttribute('aria-controls', dialogId);
+      trigger.setAttribute('aria-expanded', 'false');
       meTools.registerEvent(that, trigger, 'click', that.show.bind(that, trigger));
     }
 
